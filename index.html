@@ -7,9 +7,7 @@
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
 <style>
-:root {
-    --primary:#2E8B57; --light:#F0FFF0; --danger:#e74c3c; --white:#fff;
-}
+:root { --primary:#2E8B57; --light:#F0FFF0; --danger:#e74c3c; --white:#fff;}
 *{margin:0;padding:0;box-sizing:border-box;font-family:'Segoe UI',sans-serif;}
 body{background:var(--light);display:flex;justify-content:center;align-items:center;min-height:100vh;padding:20px;}
 .app{background:var(--white);width:100%;max-width:650px;border-radius:12px;box-shadow:0 5px 20px rgba(0,0,0,.2);overflow:hidden;}
@@ -28,9 +26,9 @@ input,select{width:100%;padding:10px;border:2px solid #ccc;border-radius:8px;}
 table{width:100%;border-collapse:collapse;margin-top:10px;}
 th,td{border:1px solid #ddd;padding:7px;font-size:.85rem;}
 th{background:var(--primary);color:#fff;}
-small{color:red;}
-.link{margin-top:10px;text-align:center;font-size:.8rem;}
+.link{text-align:center;margin-top:10px;font-size:.8rem;}
 .link a{color:#555;text-decoration:none;}
+small{color:red;}
 </style>
 </head>
 
@@ -69,9 +67,7 @@ small{color:red;}
         <span id="progress">Soal 1/10</span>
         <span id="kelasTag" style="font-weight:bold;color:var(--primary);"></span>
     </div>
-    <div class="question-card">
-        <div id="questionText"></div>
-    </div>
+    <div class="question-card"><div id="questionText"></div></div>
     <div id="options"></div>
     <button id="nextBtn" class="btn" onclick="nextQuestion()" disabled>Selanjutnya</button>
 </div>
@@ -99,43 +95,79 @@ small{color:red;}
 </div>
 
 <script>
-/* ====================== DATA SOAL ====================== */
-const pool3=[
-{q:"Berapa jumlah rukun Islam?",opts:["4","5","6","7"],a:1},
-{q:"Rukun Islam pertama adalah?",opts:["Shalat","Zakat","Puasa","Syahadat"],a:3},
-{q:"Shalat wajib berjumlah?",opts:["3","4","5","6"],a:2},
-{q:"Siapa nabi terakhir?",opts:["Musa","Isa","Ibrahim","Muhammad SAW"],a:3},
-{q:"Kitab suci umat Islam adalah?",opts:["Zabur","Taurat","Injil","Al-Qur'an"],a:3},
-{q:"Malaikat pencatat amal baik?",opts:["Jibril","Mikail","Raqib","Atid"],a:2},
-{q:"Surat artinya demi waktu?",opts:["Al-Fatihah","Al-Ikhlas","Al-Asr","An-Nas"],a:2},
-{q:"Malaikat meniup sangkakala?",opts:["Israfil","Izrail","Munkar","Nakir"],a:0},
-{q:"Manusia pertama?",opts:["Musa","Adam","Ibrahim","Nuh"],a:1},
-{q:"Puasa wajib berniat?",opts:["Siang","Tengah malam","Sebelum subuh","Setelah subuh"],a:2},
-
-/* ===================== Soal tambahan Ramadhan ===================== */
-{q:"Umat Islam menyambut bulan?",opts:["Syawal","Ramadhan","Muharram","Dzulhijjah"],a:1},
-{q:"Puasa Ramadhan hukumnya?",opts:["Sunnah","Makruh","Mubah","Wajib"],a:3},
-{q:"Puasa dimulai dari?",opts:["Subuh","Dzuhur","Maghrib","Isya"],a:0},
-{q:"Puasa selesai saat?",opts:["Subuh","Dzuhur","Ashar","Maghrib"],a:3},
-{q:"Sholat tarawih dikerjakan pada?",opts:["Pagi","Siang","Malam","Subuh"],a:2},
-{q:"Orang yang tidak boleh puasa adalah?",opts:["Anak kecil","Orang sakit","Musafir","Semua benar"],a:3},
-{q:"Menyambut Ramadhan kita harus?",opts:["Marah","Bersedih","Bergembira","Acuh"],a:2},
-{q:"Bulan Ramadhan adalah bulan?",opts:["Biasa","Berkah","Musibah","Larangan"],a:1},
-{q:"Lailatul Qadar terdapat di bulan?",opts:["Syawal","Muharram","Ramadhan","Rajab"],a:2},
-{q:"Setelah Ramadhan ada hari raya?",opts:["Idul Adha","Tahun Baru","Idul Fitri","Maulid"],a:2}
+/* ====================== SOAL KELAS 3 (RAMADHAN 30) ====================== */
+const pool3 = [
+{q:"Bulan yang sangat ditunggu umat Islam adalah bulan?", opts:["Syawal","Ramadhan","Muharram","Dzulhijjah"], a:1},
+{q:"Puasa Ramadhan hukumnya adalah?", opts:["Sunnah","Makruh","Mubah","Wajib"], a:3},
+{q:"Puasa Ramadhan dimulai sejak?", opts:["Terbit matahari","Terbenam matahari","Masuk subuh","Masuk maghrib"], a:2},
+{q:"Puasa Ramadhan berakhir saat?", opts:["Subuh","Dzuhur","Ashar","Maghrib"], a:3},
+{q:"Niat puasa Ramadhan dilakukan pada?", opts:["Siang","Sore","Malam hari","Pagi"], a:2},
+{q:"Shalat sunnah di malam Ramadhan adalah shalat?", opts:["Tahajud","Tarawih","Dhuha","Idul Fitri"], a:1},
+{q:"Waktu shalat Tarawih adalah saat?", opts:["Pagi","Siang","Malam","Subuh"], a:2},
+{q:"Orang yang tidak kuat berpuasa karena sakit boleh?", opts:["Tetap puasa","Tidak makan","Buka puasa","Tidur saja"], a:2},
+{q:"Anak kecil yang belum baligh boleh?", opts:["Tidak puasa","Diusir","Dimarahi","Tidak boleh makan"], a:0},
+{q:"Bulan Ramadhan adalah bulan penuh?", opts:["Musibah","Berkah","Kemarau","Kesedihan"], a:1},
+{q:"Malam yang lebih baik dari seribu bulan adalah malam?", opts:["Idul Fitri","Jumat","Lailatul Qadar","Tahun baru"], a:2},
+{q:"Hari raya setelah Ramadhan adalah?", opts:["Idul Adha","Idul Fitri","Maulid Nabi","Tahun Baru"], a:1},
+{q:"Membayar zakat fitrah dilakukan pada?", opts:["Awal tahun","Akhir Ramadhan","Bulan Muharram","Bulan Syawal"], a:1},
+{q:"Zakat fitrah diberikan kepada?", opts:["Guru","Orang kaya","Orang miskin","Semua orang"], a:2},
+{q:"Berbuka puasa disunnahkan dengan?", opts:["Es krim","Air putih dan kurma","Nasi","Kue"], a:1},
+{q:"Doa berbuka puasa diawali dengan kalimat?", opts:["Bismillah","Allahumma","Alhamdulillah","Astaghfirullah"], a:1},
+{q:"Puasa berarti menahan diri dari?", opts:["Makan dan minum","Belajar","Tidur","Bermain"], a:0},
+{q:"Umat Islam menyambut Ramadhan dengan hati?", opts:["Sedih","Marah","Gembira","Benci"], a:2},
+{q:"Ibadah yang sering dilakukan saat Ramadhan adalah?", opts:["Jajan","Tadarus Al-Qur'an","Tidur","Bermain"], a:1},
+{q:"Membaca Al-Qur'an disebut?", opts:["Berpuasa","Tadarus","Zikir","Sedekah"], a:1},
+{q:"Selain puasa, umat Islam juga dianjurkan untuk?", opts:["Berkelahi","Sedekah","Mencuri","Berbohong"], a:1},
+{q:"Orang yang berpuasa tidak boleh?", opts:["Berdoa","Makan di siang hari","Shalat","Belajar"], a:1},
+{q:"Puasa Ramadhan adalah rukun Islam ke?", opts:["1","2","3","4"], a:2},
+{q:"Jika melihat orang susah saat Ramadhan, kita harus?", opts:["Membantu","Menghina","Membiarkan","Menertawakan"], a:0},
+{q:"Orang yang sedang bepergian jauh disebut?", opts:["Musafir","Petani","Nelayan","Pedagang"], a:0},
+{q:"Musafir boleh tidak puasa dan harus?", opts:["Melupakan puasa","Mengqadha setelahnya","Tidak perlu ganti","Marah"], a:1},
+{q:"Malam terakhir Ramadhan biasanya penuh dengan?", opts:["Permusuhan","Ibadah","Tidur","Keramaian"], a:1},
+{q:"Idul Fitri artinya kembali ke?", opts:["Rumah","Sekolah","Fitri/suci","Pasar"], a:2},
+{q:"Saat Idul Fitri kita saling?", opts:["Minta maaf","Bertengkar","Tidur","Menangis"], a:0},
+{q:"Setelah shalat Idul Fitri biasanya kita?", opts:["Minta maaf kepada orang tua","Tidur","Ke pantai","Bermain game"], a:0}
 ];
 
-const pool4=[ /* Kelas 4 tidak diubah */
-{q:"Perubahan menuju dewasa disebut?",opts:["Baligh","Tua","Bayi","Hamil"],a:0},
-{q:"Baligh artinya mulai?",opts:["Wajib ibadah","Boleh malas","Tidur","Main"],a:0},
-...
-]; // (kode pool4 tetap seperti sebelumnya)
+/* ====================== SOAL KELAS 4 (BALIG & HIJRAH 30) ====================== */
+const pool4 = [
+{q:"Perubahan dari anak-anak menuju dewasa disebut?", opts:["Balig","Hijrah","Tua","Berat"], a:0},
+{q:"Anak laki-laki dianggap balig jika sudah mimpi?", opts:["Biasa","Basah","Buruk","Bahagia"], a:1},
+{q:"Anak perempuan dianggap balig jika sudah?", opts:["Bermain","Haidh","Berkuda","Berdoa"], a:1},
+{q:"Balig berarti sudah mulai?", opts:["Berhenti ibadah","Wajib ibadah","Nak nakal","Libur sekolah"], a:1},
+{q:"Hijrah artinya berpindah dari?", opts:["Madinah ke Mekkah","Mekkah ke Madinah","Sekolah ke rumah","Rumah ke sekolah"], a:1},
+{q:"Hijrah Nabi dilakukan bersama sahabat?", opts:["Umar","Bilal","Abu Bakar","Ali"], a:2},
+{q:"Peristiwa hijrah terjadi pada bulan?", opts:["Rajab","Safar","Muharram","Syawal"], a:2},
+{q:"Usia balig menandai anak sudah menjadi?", opts:["Bayi","Balita","Remaja","Kakek"], a:2},
+{q:"Orang balig harus menjaga?", opts:["Makanan","Tidur","Aurah","Warna baju"], a:2},
+{q:"Hijrah Nabi adalah perintah dari?", opts:["Raja","Nabi Isa","Allah SWT","Manusia"], a:2},
+{q:"Kota tujuan hijrah Nabi adalah?", opts:["Damaskus","Baghdad","Madinah","Kairo"], a:2},
+{q:"Nabi Muhammad hijrah dari kota?", opts:["Madinah","Mekkah","Thaif","Syam"], a:1},
+{q:"Hijrah Nabi menandai permulaan?", opts:["Tahun Islam","Tahun masehi","Tahun cina","Tahun jawa"], a:0},
+{q:"Orang balig harus mulai meninggalkan?", opts:["Kegiatan baik","Sikap buruk","Belajar","Ibadah"], a:1},
+{q:"Hijrah Nabi dilakukan agar dakwah?", opts:["Terhambat","Mundur","Berkembang","Hilang"], a:2},
+{q:"Perubahan fisik saat balig adalah?", opts:["Tinggi bertambah","Gigi hilang","Warna rambut","Mata berubah"], a:0},
+{q:"Tanda balig pada laki-laki adalah?", opts:["Suara tambah berat","Bahasa berubah","Tinggi menurun","Tidur siang"], a:0},
+{q:"Tanda balig pada perempuan adalah?", opts:["Suara pecah","Bersin banyak","Haidh","Hilang gigi"], a:2},
+{q:"Anak balig wajib menjaga shalat?", opts:["Wajib","Tidak perlu","Kadang saja","Bebas"], a:0},
+{q:"Saat hijrah, masyarakat Madinah menyambut Nabi dengan?", opts:["Marah","Permusuhan","Gembira","Sedih"], a:2},
+{q:"Balig juga ditandai dengan perubahan?", opts:["Cuaca","Lingkungan","Emosi","Motor"], a:2},
+{q:"Hijrah mengajarkan kita untuk tidak?", opts:["Sabar","Pantang menyerah","Takut berjuang","Berbuat salah"], a:3},
+{q:"Nabi berlindung di gua?", opts:["Hira","Tsur","Uhud","Badar"], a:1},
+{q:"Di Madinah Nabi membangun masjid?", opts:["Quba","Haram","Nabawi","Aqsa"], a:0},
+{q:"Setelah balig harus mulai menjaga?", opts:["Jadwal kartun","Kebersihan diri","Game","Mainan"], a:1},
+{q:"Hijrah secara maknawi berarti?", opts:["Berpindah fisik","Berubah lebih baik","Berdiam diri","Melamun"], a:1},
+{q:"Anak balig harus menjauhi?", opts:["Sedekah","Kebaikan","Akhlaq buruk","Belajar"], a:2},
+{q:"Hijrah Nabi dilakukan karena tekanan dari?", opts:["Orang Mekkah","Orang Madinah","Orang Mesir","Orang Syam"], a:0},
+{q:"Tanggal hijrah Nabi menjadi awal sistem?", opts:["Sekolah","Kalender Hijriyah","Kalender Romawi","Kalender Jawa"], a:1},
+{q:"Balig adalah tanda sudah mulai punya?", opts:["Tanggung jawab","Banyak mainan","Tidak belajar","Tidak shalat"], a:0}
+];
 
-/* ============= STATE ============= */
+/* ====================== STATE ====================== */
 let current=[],index=0,score=0,student="",kelas="";
 const synth=window.speechSynthesis;
 
-/* ========== FUNCTIONS ========== */
+/* ====================== FUNCTIONS ====================== */
 function shuffle(a){for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];}return a;}
 
 function startQuiz(){
@@ -151,7 +183,7 @@ function startQuiz(){
         return;
     }
 
-    student=n; kelas=k; err.style.display="none";
+    student=n; kelas=k;
     const pool=(k=="3A"||k=="3B")?pool3:pool4;
     current=shuffle([...pool]).slice(0,10);
     index=0; score=0;
@@ -166,9 +198,11 @@ function showQuestion(){
     document.getElementById("progress").innerText=`Soal ${index+1}/10`;
     document.getElementById("questionText").innerText=q.q;
     speak(q.q);
+
     const opt=document.getElementById("options");
     opt.innerHTML="";
     document.getElementById("nextBtn").disabled=true;
+
     q.opts.forEach((o,i)=>{
         const div=document.createElement("div");
         div.className="option";
@@ -196,9 +230,11 @@ function nextQuestion(){
 function finish(){
     document.getElementById("nameResult").innerText=student;
     document.getElementById("scoreBox").innerText=score;
+
     const history=JSON.parse(localStorage.getItem("quizHistory")||"[]");
-    history.push({name:student,class:kelas,score:score,time:new Date().toLocaleString("id")});
+    history.push({name:student,class:kelas,score:score,time:new Date().toLocaleString("id-ID")});
     localStorage.setItem("quizHistory",JSON.stringify(history));
+
     showScreen("result");
 }
 
@@ -210,11 +246,36 @@ function speak(text){
 }
 
 function restart(){location.reload();}
-function openAdmin(){const pwd=prompt("Masukkan sandi guru:");if(pwd==="040698"){loadTable();showScreen("admin");}else if(pwd!==null)alert("Sandi salah!");}
-function loadTable(){const body=document.querySelector("#scoreTable tbody");const history=JSON.parse(localStorage.getItem("quizHistory")||"[]");body.innerHTML="";history.forEach((x,i)=>{body.innerHTML+=`<tr><td>${i+1}</td><td>${x.name}</td><td>${x.class}</td><td>${x.score}</td><td>${x.time}</td></tr>`;});}
-function resetData(){if(confirm("Yakin reset semua data?")){localStorage.removeItem("quizHistory");loadTable();alert("Data terhapus!");}}
+
+function openAdmin(){
+    const pwd=prompt("Masukkan sandi guru:");
+    if(pwd==="040698"){loadTable();showScreen("admin");}
+    else if(pwd!==null)alert("Sandi salah!");
+}
+
+function loadTable(){
+    const body=document.querySelector("#scoreTable tbody");
+    const history=JSON.parse(localStorage.getItem("quizHistory")||"[]");
+    body.innerHTML="";
+    history.forEach((x,i)=>{
+        body.innerHTML+=`<tr><td>${i+1}</td><td>${x.name}</td><td>${x.class}</td><td>${x.score}</td><td>${x.time}</td></tr>`;
+    });
+}
+
+function resetData(){
+    if(confirm("Yakin reset semua data?")){
+        localStorage.removeItem("quizHistory");
+        loadTable();
+        alert("Data terhapus!");
+    }
+}
+
 function goLogin(){showScreen("login");}
-function showScreen(id){document.querySelectorAll(".screen").forEach(s=>s.classList.remove("active"));document.getElementById(id).classList.add("active");}
+
+function showScreen(id){
+    document.querySelectorAll(".screen").forEach(s=>s.classList.remove("active"));
+    document.getElementById(id).classList.add("active");
+}
 </script>
 
 </div>
