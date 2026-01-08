@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Kuis Cerdas PAI - SD Kelas 3 & 4</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+<style>
+/* === STYLE (dari tampilan kamu) === */
+:root {
+    --primary-color: #2E8B57;
+    --secondary-color: #F0FFF0;
+    --accent-color: #FFD700;
+    --text-color: #333;
+    --white: #ffffff;
+    --danger: #e74c3c;
+    --shadow: 0 4px 6px rgba(0,0,0,0.1);
+    --radius: 12px;
+}
+*{margin:0;padding:0;box-sizing:border-box;font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif;}
+body{background:var(--secondary-color);color:var(--text-color);display:flex;justify-content:center;align-items:center;min-height:100vh;padding:20px;}
+.app-container{background:var(--white);width:100%;max-width:600px;border-radius:var(--radius);box-shadow:0 10px 25px rgba(0,0,0,0.15);overflow:hidden;position:relative;min-height:500px;display:flex;flex-direction:column;}
+header{background:var(--primary-color);color:var(--white);padding:20px;text-align:center;}
+header h1{font-size:1.5rem;margin-bottom:5px;}
+header p{font-size:.9rem;opacity:.9;}
+.screen{padding:30px;flex:1;display:none;flex-direction:column;animation:fadeIn .4s ease-in-out;}
+.screen.active{display:flex;}
+@keyframes fadeIn{from{opacity:0;transform:translateY(10px);}to{opacity:1;transform:translateY(0);}}
+.form-group{margin-bottom:20px;}
+label{display:block;margin-bottom:8px;font-weight:600;color:var(--primary-color);}
+input[type=text],select{width:100%;padding:12px;border:2px solid #ddd;border-radius:8px;font-size:1rem;}
+.btn{background:var(--primary-color);color:var(--white);border:none;padding:12px 24px;border-radius:8px;font-size:1rem;font-weight:600;cursor:pointer;width:100%;transition:.3s;display:flex;align-items:center;justify-content:center;gap:10px;}
+.btn:hover{background:#276f44;}
+.btn-danger{background:var(--danger);}
+.btn-secondary{background:#7f8c8d;margin-top:10px;}
+.quiz-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;font-weight:bold;color:var(--primary-color);}
+.question-card{background:#f9f9f9;padding:20px;border-radius:var(--radius);border-left:5px solid var(--accent-color);margin-bottom:25px;}
+.question-text{font-size:1.2rem;margin-bottom:15px;}
+.options-grid{display:grid;gap:12px;}
+.option-btn{background:var(--white);border:2px solid #e0e0e0;padding:15px;border-radius:8px;text-align:left;cursor:pointer;transition:.2s;}
+.option-btn:hover{border-color:var(--primary-color);background:#f0fff4;}
+.option-btn.selected{background:var(--primary-color);color:var(--white);border-color:var(--primary-color);}
+.score-circle{width:150px;height:150px;border-radius:50%;background:var(--primary-color);color:var(--white);display:flex;justify-content:center;align-items:center;font-size:3rem;font-weight:bold;margin:20px 0;}
+.result-container{text-align:center;flex:1;display:flex;flex-direction:column;justify-content:center;align-items:center;}
+.table-responsive{overflow-x:auto;margin-top:20px;}
+table{width:100%;border-collapse:collapse;}
+th,td{padding:12px;border-bottom:1px solid #ddd;font-size:.9rem;}
+th{background:var(--primary-color);color:var(--white);}
+.status-badge{padding:4px 8px;border-radius:4px;font-size:.8rem;font-weight:bold;background:#e0f2f1;color:#00695c;}
+.hidden{display:none;}
+</style>
+</head>
+
+<body>
+<div class="app-container">
+<header>
+    <h1><i class="fas fa-mosque"></i> Kuis PAI SD</h1>
+    <p>Kelas 3A, 3B, 4A, 4B</p>
+</header>
+
+<!-- LOGIN -->
+<div id="login-screen" class="screen active">
+    <h2 style="text-align:center;margin-bottom:20px;">Selamat Datang!</h2>
+    <div class="form-group">
+        <label>Nama Lengkap</label>
+        <input id="student-name" type="text" placeholder="Contoh: Ahmad Abdullah">
+    </div>
+    <div class="form-group">
+        <label>Pilih Kelas</label>
+        <select id="student-class">
+            <option value="" disabled selected>-- Pilih Kelas --</option>
+            <option value="3A">Kelas 3A</option>
+            <option value="3B">Kelas 3B</option>
+            <option value="4A">Kelas 4A</option>
+            <option value="4B">Kelas 4B</option>
+        </select>
+    </div>
+    <button class="btn" onclick="startQuiz()"><i class="fas fa-play"></i> Mulai</button>
+    <div id="login-error" style="color:red;margin-top:10px;display:none;"></div>
+</div>
+
+<!-- QUIZ -->
+<div id="quiz-screen" class="screen">
+    <div class="quiz-header">
+        <span id="progress-text">Soal 1 / 10</span>
+        <span id="class-display" class="status-badge">Kelas -</span>
+    </div>
+
+    <div class="question-card">
+        <div id="question-text" class="question-text">Loading...</div>
+    </div>
+
+    <div id="options-container" class="options-grid"></div>
+
+    <div style="margin-top:20px;text-align:right;">
+        <button id="next-btn" class="btn" onclick="nextQuestion()" disabled>Selanjutnya</button>
+    </div>
+</div>
+
+<!-- RESULT -->
+<div id="result-screen" class="screen">
+    <div class="result-container">
+        <h2>Kuis Selesai!</h2>
+        <p id="student-name-display" style="font-weight:bold;margin:10px 0;">Nama Siswa</p>
+        <div id="final-score" class="score-circle">0</div>
+        <button class="btn" onclick="resetApp()"><i class="fas fa-home"></i> Kembali</button>
+    </div>
+</div>
+</div>
+
+<script>
+/* ======================= DATA SOAL ======================= */
+const questionPool_3 = [
+    { q:"Berapa jumlah rukun Islam?",opts:["4","5","6","7"],a:1 },
+    { q:"Rukun Islam yang pertama adalah?",opts:["Shalat","Zakat","Puasa","Syahadat"],a:3 },
+    { q:"Shalat wajib dalam sehari semalam berjumlah?",opts:["3 waktu","4 waktu","5 waktu","6 waktu"],a:2 },
+    { q:"Nabi kita yang terakhir bernama?",opts:["Nabi Musa","Nabi Isa","Nabi Ibrahim","Nabi Muhammad SAW"],a:3 },
+    { q:"Kitab suci umat Islam adalah?",opts:["Zabur","Taurat","Injil","Al-Qur'an"],a:3 },
+    { q:"Malaikat yang bertugas mencatat amal baik adalah?",opts:["Jibril","Mikail","Raqib","Atid"],a:2 },
+    { q:"Surat pendek yang artinya 'Demi waktu' adalah?",opts:["Al-Fatihah","Al-Ikhlas","Al-Asr","An-Nas"],a:2 },
+    { q:"Malaikat yang bertugas meniup sangkakala adalah?",opts:["Israfil","Izrail","Munkar","Nakir"],a:0 },
+    { q:"Siapa manusia pertama ciptaan Allah?",opts:["Nabi Musa","Nabi Adam","Nabi Ibrahim","Nabi Nuh"],a:1 },
+    { q:"Orang yang berpuasa wajib berniat?",opts:["Siang hari","Tengah malam","Sebelum matahari terbit","Setelah matahari terbit"],a:2 }
+];
+
+const questionPool_4 = [
+    { q:"Perubahan dari anak-anak menuju dewasa disebut…",opts:["Baligh","Hamil","Tua","Kanak-kanak"],a:0 },
+    { q:"Baligh artinya seseorang sudah mulai…",opts:["Wajib sholat","Wajib tidur siang","Wajib bermain","Tidak perlu ibadah"],a:0 },
+    { q:"Tanda baligh pada anak laki-laki adalah…",opts:["Menstruasi","Suara berubah menjadi lebih berat","Hamil","Menopause"],a:1 },
+    { q:"Tanda baligh pada anak perempuan adalah…",opts:["Mimpi basah","Menstruasi","Berkumis","Suara pecah"],a:1 },
+    { q:"Menstruasi adalah tanda baligh pada…",opts:["Laki-laki","Perempuan","Bayi","Orang tua"],a:1 },
+    { q:"Mimpi basah adalah tanda baligh pada…",opts:["Laki-laki","Perempuan","Bayi","Orang tua"],a:0 },
+    { q:"Baligh biasanya terjadi pada usia…",opts:["1–3 tahun","5–7 tahun","9–15 tahun","20–30 tahun"],a:2 },
+    { q:"Saat sudah baligh, seseorang dicatat amal…",opts:["Sholeh & dosa","Uang & harta","Umur & nama","Nilai & ranking"],a:0 },
+    { q:"Aurat laki-laki adalah…",opts:["Rambut sampai kaki","Pusar sampai lutut","Lutut sampai mata kaki","Dada sampai lutut"],a:1 },
+    { q:"Aurat perempuan di depan bukan mahram adalah…",opts:["Paha","Seluruh tubuh kecuali wajah & telapak tangan","Lutut sampai kaki","Rambut saja"],a:1 },
+    { q:"Perempuan baligh wajib…",opts:["Berhijab","Bercukur kumis","Tidur siang","Diam"],a:0 },
+    { q:"Laki-laki yang sudah baligh wajib…",opts:["Sholat 5 waktu","Menangis","Main game","Tidur siang"],a:0 },
+    { q:"Perubahan fisik laki-laki…",opts:["Tumbuh kumis","Menstruasi","Menopause","Tidak berubah"],a:0 },
+    { q:"Perubahan fisik perempuan…",opts:["Tumbuh payudara","Suara pecah","Berkumis lebat","Menjadi kecil"],a:0 },
+    { q:"Pada usia baligh harus menjaga kebersihan…",opts:["Rumah","Badan & pakaian","Sepeda","Buku"],a:1 },
+    { q:"Setelah baligh, mandi wajib jika…",opts:["Kotor","Mimpi basah","Makan","Tidur"],a:1 },
+    { q:"Menstruasi terjadi setiap…",opts:["1 tahun","1 bulan","10 tahun","1 minggu"],a:1 },
+    { q:"Baligh tanda mulai…",opts:["Bertanggung jawab agama","Lari cepat","Tidur lama","Tidak mandi"],a:0 },
+    { q:"Menutup aurat hukumnya…",opts:["Wajib","Sunnah","Makruh","Haram"],a:0 },
+    { q:"Menjaga pandangan untuk…",opts:["Tidak ganggu orang","Main","Makan","Tidur"],a:0 },
+    { q:"Tanda bukan baligh…",opts:["Suara pecah","Menstruasi","Mimpi basah","Bermain sepeda"],a:3 },
+    { q:"Baligh ditandai keluar…",opts:["Haid/Mani","Air mata","Keringat","Air liur"],a:0 },
+    { q:"Akhlak baligh adalah…",opts:["Berkata baik","Berkata jorok","Berkelahi","Berbohong"],a:0 },
+    { q:"Sholat wajib bagi yang…",opts:["Baligh","Menikah","Lulus SD","Pindah rumah"],a:0 },
+    { q:"Perempuan haid tidak boleh…",opts:["Sholat","Minum","Bicara","Mandi"],a:0 },
+    { q:"Setelah haid wajib…",opts:["Mandi wajib","Belanja","Tidur","Makan"],a:0 },
+    { q:"Berbakti kepada orang tua hukumnya…",opts:["Wajib","Sunnah","Makruh","Haram"],a:0 },
+    { q:"Akhlak saat baligh salah satunya…",opts:["Jaga lisan","Terus marah","Berbohong","Membully"],a:0 },
+    { q:"Tidak boleh membuka aurat depan…",opts:["Non mahram","Orang tua","Dokter","Kakak"],a:0 },
+    { q:"Baligh artinya boleh…",opts:["Diberi tanggung jawab agama","Menjadi bayi","Tidak tugas","Tidur terus"],a:0 }
+];
+
+/* ========= STATE ========= */
+let studentName="", studentClass="", score=0, currentIndex=0, currentQuestions=[];
+
+/* ========= UTILS ========= */
+function shuffle(arr){for(let i=arr.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[arr[i],arr[j]]=[arr[j],arr[i]];}return arr;}
+
+function startQuiz(){
+    const name=document.getElementById("student-name").value.trim();
+    const cls=document.getElementById("student-class").value;
+
+    if(!name||!cls){alert("Isi nama & pilih kelas!");return;}
+
+    studentName=name;
+    studentClass=cls;
+
+    let pool = (cls==="3A"||cls==="3B") ? questionPool_3 : questionPool_4;
+    
+    currentQuestions = shuffle([...pool]).slice(0,10);
+    currentIndex=0;
+    score=0;
+    document.getElementById("class-display").innerText="Kelas "+cls;
+    showQuestion();
+    showScreen("quiz-screen");
+}
+
+function showScreen(id){
+    document.querySelectorAll(".screen").forEach(s=>s.classList.remove("active"));
+    document.getElementById(id).classList.add("active");
+}
+
+function showQuestion(){
+    const q=currentQuestions[currentIndex];
+    document.getElementById("progress-text").innerText=`Soal ${currentIndex+1} / 10`;
+    document.getElementById("question-text").innerText=q.q;
+
+    const container=document.getElementById("options-container");
+    container.innerHTML="";
+    q.opts.forEach((opt,i)=>{
+        const btn=document.createElement("div");
+        btn.className="option-btn";
+        btn.innerHTML=`<strong>${String.fromCharCode(65+i)}.</strong> ${opt}`;
+        btn.onclick=()=>selectOption(i,btn);
+        container.appendChild(btn);
+    });
+
+    const next=document.getElementById("next-btn");
+    next.disabled=true;
+    next.style.opacity=".6";
+}
+
+let selectedIndex=null;
+function selectOption(i,btn){
+    selectedIndex=i;
+    document.querySelectorAll(".option-btn").forEach(b=>b.classList.remove("selected"));
+    btn.classList.add("selected");
+    const next=document.getElementById("next-btn");
+    next.disabled=false;
+    next.style.opacity="1";
+}
+
+function nextQuestion(){
+    if(selectedIndex===currentQuestions[currentIndex].a){score+=10;}
+    currentIndex++;
+    selectedIndex=null;
+
+    if(currentIndex<currentQuestions.length){showQuestion();}
+    else{finishQuiz();}
+}
+
+function finishQuiz(){
+    document.getElementById("student-name-display").innerText=studentName;
+    document.getElementById("final-score").innerText=score;
+    showScreen("result-screen");
+}
+
+function resetApp(){
+    location.reload();
+}
+</script>
+</body>
+</html>
