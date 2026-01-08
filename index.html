@@ -1,0 +1,746 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kuis Cerdas PAI - SD Kelas 3 & 4</title>
+    <!-- Menggunakan Font Awesome untuk Ikon -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <style>
+        :root {
+            --primary-color: #2E8B57; /* Sea Green */
+            --secondary-color: #F0FFF0; /* Honeydew */
+            --accent-color: #FFD700; /* Gold */
+            --text-color: #333;
+            --white: #ffffff;
+            --danger: #e74c3c;
+            --shadow: 0 4px 6px rgba(0,0,0,0.1);
+            --radius: 12px;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background-color: var(--secondary-color);
+            color: var(--text-color);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        /* Container Utama */
+        .app-container {
+            background: var(--white);
+            width: 100%;
+            max-width: 600px;
+            border-radius: var(--radius);
+            box-shadow: 0 10px 25px rgba(0,0,0,0.15);
+            overflow: hidden;
+            position: relative;
+            min-height: 500px;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* Header */
+        header {
+            background-color: var(--primary-color);
+            color: var(--white);
+            padding: 20px;
+            text-align: center;
+        }
+
+        header h1 {
+            font-size: 1.5rem;
+            margin-bottom: 5px;
+        }
+
+        header p {
+            font-size: 0.9rem;
+            opacity: 0.9;
+        }
+
+        /* Halaman / Screens */
+        .screen {
+            padding: 30px;
+            flex: 1;
+            display: none; /* Hidden by default */
+            flex-direction: column;
+            animation: fadeIn 0.4s ease-in-out;
+        }
+
+        .screen.active {
+            display: flex;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Form Elements */
+        .form-group {
+            margin-bottom: 20px;
+            text-align: left;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: var(--primary-color);
+        }
+
+        input[type="text"], select {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            font-size: 1rem;
+            transition: border-color 0.3s;
+        }
+
+        input[type="text"]:focus, select:focus {
+            border-color: var(--primary-color);
+            outline: none;
+        }
+
+        /* Buttons */
+        .btn {
+            background-color: var(--primary-color);
+            color: var(--white);
+            border: none;
+            padding: 12px 24px;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            width: 100%;
+            transition: background 0.3s, transform 0.1s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+
+        .btn:hover {
+            background-color: #276f44;
+        }
+
+        .btn:active {
+            transform: scale(0.98);
+        }
+
+        .btn-danger {
+            background-color: var(--danger);
+        }
+
+        .btn-danger:hover {
+            background-color: #c0392b;
+        }
+
+        .btn-secondary {
+            background-color: #7f8c8d;
+            margin-top: 10px;
+        }
+
+        /* Quiz UI */
+        .quiz-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            font-weight: bold;
+            color: var(--primary-color);
+        }
+
+        .question-card {
+            background: #f9f9f9;
+            padding: 20px;
+            border-radius: var(--radius);
+            border-left: 5px solid var(--accent-color);
+            margin-bottom: 25px;
+        }
+
+        .question-text {
+            font-size: 1.2rem;
+            margin-bottom: 15px;
+            line-height: 1.5;
+        }
+
+        .sound-toggle {
+            display: flex;
+            align-items: center;
+            justify-content: flex-end;
+            gap: 8px;
+            margin-bottom: 10px;
+            font-size: 0.9rem;
+            cursor: pointer;
+        }
+
+        .options-grid {
+            display: grid;
+            gap: 12px;
+        }
+
+        .option-btn {
+            background: var(--white);
+            border: 2px solid #e0e0e0;
+            padding: 15px;
+            border-radius: 8px;
+            text-align: left;
+            cursor: pointer;
+            transition: all 0.2s;
+            font-size: 1rem;
+            position: relative;
+        }
+
+        .option-btn:hover {
+            border-color: var(--primary-color);
+            background-color: #f0fff4;
+        }
+
+        .option-btn.selected {
+            background-color: var(--primary-color);
+            color: var(--white);
+            border-color: var(--primary-color);
+        }
+
+        /* Result UI */
+        .result-container {
+            text-align: center;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            height: 100%;
+        }
+
+        .score-circle {
+            width: 150px;
+            height: 150px;
+            border-radius: 50%;
+            background: var(--primary-color);
+            color: var(--white);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 3rem;
+            font-weight: bold;
+            margin: 20px 0;
+            box-shadow: 0 0 20px rgba(46, 139, 87, 0.4);
+        }
+
+        .message {
+            font-size: 1.2rem;
+            margin-bottom: 30px;
+        }
+
+        /* Teacher / Recap UI */
+        .table-responsive {
+            overflow-x: auto;
+            margin-top: 20px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.9rem;
+        }
+
+        th, td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+        }
+
+        th {
+            background-color: var(--primary-color);
+            color: var(--white);
+        }
+
+        tr:nth-child(even) {
+            background-color: #f9f9f9;
+        }
+
+        .empty-state {
+            text-align: center;
+            color: #777;
+            padding: 20px;
+        }
+
+        .teacher-link {
+            text-align: center;
+            margin-top: 20px;
+            font-size: 0.8rem;
+        }
+
+        .teacher-link a {
+            color: #777;
+            text-decoration: none;
+        }
+
+        .status-badge {
+            display: inline-block;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 0.8rem;
+            font-weight: bold;
+        }
+        .status-done { background: #d4edda; color: #155724; }
+        .status-blocked { background: #f8d7da; color: #721c24; }
+
+        /* Utility */
+        .hidden { display: none !important; }
+
+    </style>
+</head>
+<body>
+
+<div class="app-container">
+    <header>
+        <h1><i class="fas fa-mosque"></i> Kuis PAI SD</h1>
+        <p>Kelas 3A, 3B, 4A, 4B</p>
+    </header>
+
+    <!-- HALAMAN 1: LOGIN SISWA -->
+    <div id="login-screen" class="screen active">
+        <h2 style="text-align: center; margin-bottom: 20px;">Selamat Datang!</h2>
+        <p style="text-align: center; margin-bottom: 20px; color: #666;">Silakan isi data diri sebelum mengerjakan.</p>
+        
+        <div class="form-group">
+            <label for="student-name">Nama Lengkap</label>
+            <input type="text" id="student-name" placeholder="Contoh: Ahmad Abdullah">
+        </div>
+
+        <div class="form-group">
+            <label for="student-class">Pilih Kelas</label>
+            <select id="student-class">
+                <option value="" disabled selected>-- Pilih Kelas --</option>
+                <option value="3A">Kelas 3A</option>
+                <option value="3B">Kelas 3B</option>
+                <option value="4A">Kelas 4A</option>
+                <option value="4B">Kelas 4B</option>
+            </select>
+        </div>
+
+        <button class="btn" onclick="startQuiz()">
+            <i class="fas fa-play"></i> Mulai Mengerjakan
+        </button>
+
+        <div id="login-error" style="color: red; text-align: center; margin-top: 10px; display: none;">
+            Siswa ini sudah mengerjakan kuis!
+        </div>
+
+        <div class="teacher-link">
+            <a href="#" onclick="showTeacherPanel()"><i class="fas fa-chalkboard-teacher"></i> Masuk Guru / Admin</a>
+        </div>
+    </div>
+
+    <!-- HALAMAN 2: KUIS -->
+    <div id="quiz-screen" class="screen">
+        <div class="quiz-header">
+            <span id="progress-text">Soal 1 / 10</span>
+            <span class="status-badge" style="background:#e0f2f1; color:#00695c;" id="class-display">Kelas -</span>
+        </div>
+
+        <div class="sound-toggle">
+            <label style="margin:0; font-weight:normal; cursor:pointer;">
+                <input type="checkbox" id="auto-sound" checked onchange="toggleSound()"> 
+                <i class="fas fa-volume-up"></i> Baca Otomatis
+            </label>
+        </div>
+
+        <div class="question-card">
+            <div class="question-text" id="question-text">Loading...</div>
+            <button class="btn btn-secondary" style="padding: 5px 10px; font-size: 0.8rem; width: auto;" onclick="readQuestionAgain()">
+                <i class="fas fa-redo"></i> Ulangi Suara
+            </button>
+        </div>
+
+        <div class="options-grid" id="options-container">
+            <!-- Opsi jawaban akan muncul di sini -->
+        </div>
+
+        <div style="margin-top: 20px; text-align: right;">
+            <button class="btn" id="next-btn" onclick="nextQuestion()" disabled style="opacity: 0.6; cursor: not-allowed;">
+                Selanjutnya <i class="fas fa-chevron-right"></i>
+            </button>
+        </div>
+    </div>
+
+    <!-- HALAMAN 3: HASIL -->
+    <div id="result-screen" class="screen">
+        <div class="result-container">
+            <i class="fas fa-star" style="font-size: 3rem; color: var(--accent-color); margin-bottom: 10px;"></i>
+            <h2>Kuis Selesai!</h2>
+            <p id="student-name-display" style="font-weight: bold; color: #555;">Nama Siswa</p>
+            
+            <div class="score-circle" id="final-score">0</div>
+            
+            <p class="message" id="result-message">Terima kasih telah mengerjakan.</p>
+            <p style="font-size: 0.9rem; color: #888;">Nilai telah tersimpan di rekapan.</p>
+
+            <button class="btn" onclick="resetApp()">
+                <i class="fas fa-home"></i> Kembali ke Awal
+            </button>
+        </div>
+    </div>
+
+    <!-- HALAMAN 4: REKAPAN GURU -->
+    <div id="recap-screen" class="screen">
+        <h2 style="text-align: center; color: var(--primary-color);">Rekapan Nilai Quiz</h2>
+        
+        <div class="table-responsive">
+            <table id="score-table">
+                <thead>
+                    <tr>
+                        <th>No</th>
+                        <th>Nama Siswa</th>
+                        <th>Kelas</th>
+                        <th>Nilai</th>
+                        <th>Waktu</th>
+                    </tr>
+                </thead>
+                <tbody id="score-table-body">
+                    <!-- Data akan masuk sini -->
+                </tbody>
+            </table>
+        </div>
+        <div id="empty-recap" class="empty-state">Belum ada data nilai.</div>
+
+        <div style="margin-top: 30px; border-top: 2px dashed #ddd; padding-top: 20px;">
+            <h3 style="font-size: 1.1rem; color: var(--danger); margin-bottom: 10px;">Area Guru</h3>
+            <p style="font-size: 0.9rem; margin-bottom: 10px;">
+                Tombol ini akan menghapus semua data nilai dan mengizinkan siswa yang sudah selesai untuk mengerjakan ulang.
+            </p>
+            <button class="btn btn-danger" onclick="resetAllData()">
+                <i class="fas fa-trash-alt"></i> Reset Semua Data
+            </button>
+            <button class="btn btn-secondary" onclick="showLogin()">
+                <i class="fas fa-arrow-left"></i> Kembali ke Login
+            </button>
+        </div>
+    </div>
+
+</div>
+
+<script>
+    // --- DATA SOAL (PAI KELAS 3 & 4) ---
+    // Kita ambil 10 soal acak dari pool ini
+    const questionPool = [
+        { q: "Berapa jumlah rukun Islam?", opts: ["4", "5", "6", "7"], a: 1 },
+        { q: "Rukun Islam yang pertama adalah?", opts: ["Shalat", "Zakat", "Puasa", "Syahadat"], a: 3 },
+        { q: "Shalat wajib dalam sehari semalam berjumlah?", opts: ["3 waktu", "4 waktu", "5 waktu", "6 waktu"], a: 2 },
+        { q: "Nabi kita yang terakhir bernama?", opts: ["Nabi Musa", "Nabi Isa", "Nabi Ibrahim", "Nabi Muhammad SAW"], a: 3 },
+        { q: "Apa arti kalimat Syahadat?", opts: ["Tiada Tuhan selain Allah", "Muhammad utusan Allah", "A & B Benar", "Semua salah"], a: 2 },
+        { q: "Kitab suci umat Islam adalah?", opts: ["Zabur", "Taurat", "Injil", "Al-Qur'an"], a: 3 },
+        { q: "Malaikat yang bertugas mencatat amal baik adalah?", opts: ["Jibril", "Mikail", "Raqib", "Atid"], a: 2 },
+        { q: "Ibadah haji dilaksanakan di bulan?", opts: ["Ramadhan", "Muharram", "Syawal", "Dzulhijjah"], a: 3 },
+        { q: "Surat pendek yang artinya 'Demi waktu' adalah?", opts: ["Al-Fatihah", "Al-Ikhlas", "Al-Asr", "An-Nas"], a: 2 },
+        { q: "Adab makan yang benar adalah?", opts: ["Berbicara mulut penuh", "Tangan kiri", "Membaca Basmalah", "Berdiri"], a: 2 },
+        { q: "Sedekah dapat menghapus dosa?", opts: ["Salah", "Benar", "Mungkin", "Tidak tahu"], a: 1 },
+        { q: "Berapa jumlah rakaat shalat Maghrib?", opts: ["2", "3", "4", "5"], a: 1 },
+        { q: "Orang yang berpuasa wajib berniat?", opts: ["Siang hari", "Tengah malam", "Sebelum matahari terbit", "Setelah matahari terbit"], a: 2 },
+        { q: "Malaikat yang bertugas meniup sangkakala adalah?", opts: ["Israfil", "Izrail", "Mungkar", "Nakir"], a: 0 },
+        { q: "Kiblat umat Islam adalah?", opts: ["Madinah", "Mekkah", "Yerusalem", "Mesir"], a: 1 },
+        { q: "Zakat fitrah wajib dikeluarkan pada bulan?", opts: ["Syawal", "Ramadhan", "Rajab", "Muharram"], a: 1 },
+        { q: "Siapa manusia pertama ciptaan Allah?", opts: ["Nabi Musa", "Nabi Adam", "Nabi Ibrahim", "Nabi Nuh"], a: 1 },
+        { q: "Jika bertemu orang tua, kita harus?", opts: ["Menyapa", "Memarahi", "Menghindar", "Diam saja"], a: 0 },
+        { q: "Jumlah rukun Iman adalah?", opts: ["5", "6", "7", "4"], a: 1 },
+        { q: "Allah Maha Esa disebut?", opts: ["Asmaul Husna", "Kalimat Tauhid", "Doa", "Zikir"], a: 1 }
+    ];
+
+    // --- STATE VARIABLES ---
+    let currentQuestions = [];
+    let currentQuestionIndex = 0;
+    let score = 0;
+    let studentName = "";
+    let studentClass = "";
+    let isAutoSound = true;
+    let synthesis = window.speechSynthesis;
+    
+    // --- INISIALISASI ---
+    document.addEventListener('DOMContentLoaded', () => {
+        // Cek apakah ada data tersimpan sebelumnya di local storage
+        // Jika tidak, buat array kosong
+        if (!localStorage.getItem('pai_quiz_history')) {
+            localStorage.setItem('pai_quiz_history', JSON.stringify([]));
+        }
+    });
+
+    // --- NAVIGASI LAYAR ---
+    function showScreen(screenId) {
+        document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+        document.getElementById(screenId).classList.add('active');
+        
+        // Hentikan suara saat pindah layar
+        synthesis.cancel();
+    }
+
+    function showLogin() {
+        showScreen('login-screen');
+    }
+
+    function showTeacherPanel() {
+        loadRecapData();
+        showScreen('recap-screen');
+    }
+
+    // --- LOGIKA KUIS ---
+    
+    // Mengacak soal
+    function shuffleArray(array) {
+        for (let i = array.length - 1; i > 0; i--) {
+            const j = Math.floor(Math.random() * (i + 1));
+            [array[i], array[j]] = [array[j], array[i]];
+        }
+        return array;
+    }
+
+    // Mulai Kuis
+    function startQuiz() {
+        const nameInput = document.getElementById('student-name');
+        const classInput = document.getElementById('student-class');
+        const errorMsg = document.getElementById('login-error');
+
+        studentName = nameInput.value.trim();
+        studentClass = classInput.value;
+
+        if (!studentName || !studentClass) {
+            alert("Harap isi Nama dan pilih Kelas!");
+            return;
+        }
+
+        // Cek apakah siswa sudah pernah mengerjakan
+        const history = JSON.parse(localStorage.getItem('pai_quiz_history'));
+        const hasDone = history.some(h => h.name.toLowerCase() === studentName.toLowerCase() && h.class === studentClass);
+
+        if (hasDone) {
+            errorMsg.style.display = 'block';
+            errorMsg.innerText = "Maaf, " + studentName + " (" + studentClass + ") sudah mengerjakan kuis. Tunggu reset dari guru.";
+            return;
+        }
+
+        errorMsg.style.display = 'none';
+
+        // Persiapan Kuis
+        // Ambil 10 soal acak
+        const shuffledPool = shuffleArray([...questionPool]); // Copy dulu agar asli tidak berubah urutannya permanen
+        currentQuestions = shuffledPool.slice(0, 10);
+        
+        currentQuestionIndex = 0;
+        score = 0;
+        isAutoSound = document.getElementById('auto-sound').checked;
+
+        document.getElementById('class-display').innerText = "Kelas " + studentClass;
+        
+        showScreen('quiz-screen');
+        loadQuestion();
+    }
+
+    // Load Soal
+    function loadQuestion() {
+        const qData = currentQuestions[currentQuestionIndex];
+        
+        // Update UI
+        document.getElementById('progress-text').innerText = `Soal ${currentQuestionIndex + 1} / 10`;
+        document.getElementById('question-text').innerText = qData.q;
+        
+        // Reset Tombol Next
+        const nextBtn = document.getElementById('next-btn');
+        nextBtn.disabled = true;
+        nextBtn.style.opacity = "0.6";
+        nextBtn.style.cursor = "not-allowed";
+        nextBtn.innerHTML = "Selanjutnya <i class='fas fa-chevron-right'></i>";
+        
+        // Render Opsi
+        const optsContainer = document.getElementById('options-container');
+        optsContainer.innerHTML = '';
+
+        qData.opts.forEach((opt, index) => {
+            const btn = document.createElement('div');
+            btn.className = 'option-btn';
+            btn.innerHTML = `<strong>${String.fromCharCode(65 + index)}.</strong> ${opt}`;
+            btn.onclick = () => selectOption(index, btn);
+            optsContainer.appendChild(btn);
+        });
+
+        // Baca Soal
+        if (isAutoSound) {
+            readQuestionAgain();
+        }
+    }
+
+    // Suara / TTS
+    function readQuestionAgain() {
+        const text = document.getElementById('question-text').innerText;
+        synthesis.cancel(); // Stop suara sebelumnya jika ada
+        
+        const utterance = new SpeechSynthesisUtterance(text);
+        utterance.lang = 'id-ID'; // Bahasa Indonesia
+        utterance.rate = 0.9; // Kecepatan sedikit lambat biar jelas
+        
+        synthesis.speak(utterance);
+    }
+
+    function toggleSound() {
+        isAutoSound = document.getElementById('auto-sound').checked;
+    }
+
+    // Pilih Jawaban
+    function selectOption(index, btnElement) {
+        // Hapus kelas selected dari semua opsi
+        const allOpts = document.querySelectorAll('.option-btn');
+        allOpts.forEach(o => o.classList.remove('selected'));
+
+        // Tambah kelas selected ke yang dipilih
+        btnElement.classList.add('selected');
+
+        // Aktifkan tombol next
+        const nextBtn = document.getElementById('next-btn');
+        nextBtn.disabled = false;
+        nextBtn.style.opacity = "1";
+        nextBtn.style.cursor = "pointer";
+    }
+
+    // Pertanyaan Selanjutnya
+    function nextQuestion() {
+        // Cek Jawaban Benar/Salah
+        const selectedOpt = document.querySelector('.option-btn.selected');
+        const qData = currentQuestions[currentQuestionIndex];
+        
+        // Kita ambil index opsi yang diklik berdasarkan teksnya atau urutannya
+        // Di sini kita cari index berdasarkan text content dibanding array options asli
+        // Tapi cara simpler: saat klik, kita tahu indexnya.
+        // Mari kita refactor selectOption untuk menyimpan index jawaban sementara
+    }
+
+    // Modifikasi SelectOption agar simpan jawaban
+    let currentAnswerIndex = null;
+    const originalSelectOption = selectOption;
+    selectOption = function(index, btnElement) {
+        // Visual update
+        const allOpts = document.querySelectorAll('.option-btn');
+        allOpts.forEach(o => o.classList.remove('selected'));
+        btnElement.classList.add('selected');
+        
+        // Simpan jawaban
+        currentAnswerIndex = index;
+
+        // Aktifkan tombol
+        const nextBtn = document.getElementById('next-btn');
+        nextBtn.disabled = false;
+        nextBtn.style.opacity = "1";
+        nextBtn.style.cursor = "pointer";
+    }
+
+    // Override nextQuestion
+    nextQuestion = function() {
+        // Hitung Skor
+        const qData = currentQuestions[currentQuestionIndex];
+        if (currentAnswerIndex === qData.a) {
+            score += 10; // 10 soal, total 100
+        }
+
+        // Pindah ke soal berikutnya
+        currentQuestionIndex++;
+
+        if (currentQuestionIndex < currentQuestions.length) {
+            loadQuestion();
+        } else {
+            finishQuiz();
+        }
+    }
+
+    // Selesai Kuis
+    function finishQuiz() {
+        // Simpan Data
+        const history = JSON.parse(localStorage.getItem('pai_quiz_history'));
+        const newRecord = {
+            id: Date.now(),
+            name: studentName,
+            class: studentClass,
+            score: score,
+            timestamp: new Date().toLocaleString('id-ID')
+        };
+        
+        history.push(newRecord);
+        localStorage.setItem('pai_quiz_history', JSON.stringify(history));
+
+        // Tampilkan Hasil
+        document.getElementById('student-name-display').innerText = studentName;
+        document.getElementById('final-score').innerText = score;
+
+        let msg = "";
+        if (score === 100) msg = "Alhamdulillah! Sempurna! 🌟";
+        else if (score >= 80) msg = "Bagus sekali! Pertahankan. 👍";
+        else if (score >= 60) msg = "Cukup baik, belajar lagi ya. 📚";
+        else msg = "Jangan menyerah, coba lagi nanti! 💪";
+        
+        document.getElementById('result-message').innerText = msg;
+
+        showScreen('result-screen');
+    }
+
+    // --- LOGIKA REKAPAN & RESET ---
+
+    function loadRecapData() {
+        const history = JSON.parse(localStorage.getItem('pai_quiz_history'));
+        const tbody = document.getElementById('score-table-body');
+        const emptyState = document.getElementById('empty-recap');
+        const table = document.getElementById('score-table');
+
+        tbody.innerHTML = '';
+
+        if (history.length === 0) {
+            emptyState.style.display = 'block';
+            table.style.display = 'none';
+        } else {
+            emptyState.style.display = 'none';
+            table.style.display = 'table';
+
+            // Urutkan dari yang terbaru
+            history.reverse().forEach((item, index) => {
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td>${history.length - index}</td>
+                    <td>${item.name}</td>
+                    <td>${item.class}</td>
+                    <td style="font-weight:bold; color: ${item.score >= 70 ? 'green' : 'red'}">${item.score}</td>
+                    <td style="font-size:0.8rem;">${item.timestamp}</td>
+                `;
+                tbody.appendChild(tr);
+            });
+        }
+    }
+
+    function resetAllData() {
+        const confirmReset = confirm("Apakah Anda yakin ingin menghapus semua nilai? Siswa yang sudah selesai bisa mengerjakan lagi.");
+        
+        if (confirmReset) {
+            localStorage.removeItem('pai_quiz_history');
+            loadRecapData();
+            alert("Data berhasil di-reset.");
+        }
+    }
+
+    function resetApp() {
+        document.getElementById('student-name').value = '';
+        document.getElementById('student-class').value = '';
+        document.getElementById('login-error').style.display = 'none';
+        showScreen('login-screen');
+    }
+
+</script>
+
+</body>
+</html>
