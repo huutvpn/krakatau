@@ -1,0 +1,347 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Sistem Terpadu PAI SD</title>
+
+<!-- Font -->
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
+
+<style>
+:root{
+  --primary:#2E8B57;
+  --primary-light:#3fae75;
+  --bg:#f4f7fb;
+  --radius:14px;
+  --shadow:0 6px 16px rgba(0,0,0,0.12);
+  --card:#fff;
+}
+*{box-sizing:border-box;}
+body{
+  margin:0;padding:0;
+  font-family:'Poppins',sans-serif;
+  background:var(--bg);
+  display:flex;justify-content:center;align-items:flex-start;
+  min-height:100vh;padding:20px;
+}
+.container{
+  width:100%;max-width:520px;
+  background:var(--card);
+  border-radius:var(--radius);
+  box-shadow:var(--shadow);
+  overflow:hidden;
+}
+header{
+  text-align:center;font-weight:600;
+  padding:18px;font-size:1.4rem;
+  background:linear-gradient(135deg,var(--primary),var(--primary-light));
+  color:white;
+}
+.screen{display:none;padding:20px;}
+.screen.active{display:block;}
+input,select{
+  width:100%;padding:12px;
+  border-radius:var(--radius);
+  border:1px solid #d4d4d4;
+  margin-bottom:10px;
+}
+button{
+  width:100%;padding:12px;
+  border-radius:var(--radius);
+  border:none;margin-top:8px;
+  font-weight:600;cursor:pointer;
+}
+.btn-primary{background:var(--primary);color:white;}
+.btn-blue{background:#3498db;color:white;}
+.btn-red{background:#e74c3c;color:white;}
+.btn-yellow{background:#f1c40f;color:black;}
+.option{
+  padding:12px;border:1px solid #ccc;
+  border-radius:var(--radius);
+  margin-top:10px;background:white;
+  cursor:pointer;
+}
+.option.selected{border:2px solid var(--primary);background:#e8ffef;}
+.scrollBox{
+  max-height:350px;overflow-y:auto;
+  border:1px solid #ddd;padding:10px;border-radius:var(--radius);
+}
+.musicBox{
+  background:white;border:1px solid #ddd;border-radius:var(--radius);
+  padding:12px;margin-top:15px;
+}
+.controls{display:flex;gap:10px;margin-top:8px}
+.controls button{flex:1;}
+table{border-collapse:collapse;width:100%;font-size:0.85rem;}
+table th,table td{border:1px solid #ccc;padding:6px;text-align:center;background:white;}
+</style>
+</head>
+<body>
+
+<div class="container">
+
+<header>SISTEM TERPADU PAI SD</header>
+
+<!-- LOGIN -->
+<div id="login" class="screen active">
+  <input id="studentName" placeholder="Nama lengkap...">
+  <select id="studentClass">
+    <option value="">Pilih Kelas</option>
+    <option>3A</option><option>3B</option>
+    <option>4A</option><option>4B</option>
+  </select>
+  <button class="btn-primary" onclick="startQuiz()">Mulai Kuis</button>
+  <button class="btn-blue" onclick="openGuruLogin()">Login Guru</button>
+  <button class="btn-yellow" onclick="openKhodam()">Cek Khodam</button>
+  <button class="btn-primary" onclick="showScreen('murotalSection')">Murotal Al-Qur'an 🎧</button>
+
+  <div class="musicBox">
+    <b>🎶 Musik Latar</b>
+    <div id="trackName" style="font-size:0.9rem;color:#444;margin-top:4px;"></div>
+    <div class="controls">
+      <button id="btnStop" class="btn-red">Stop</button>
+      <button id="btnNext" class="btn-yellow">Replay</button>
+    </div>
+  </div>
+
+  <div id="loginError" style="color:red;margin-top:6px;display:none;"></div>
+</div>
+
+<!-- QUIZ -->
+<div id="quiz" class="screen">
+  <h3 id="progress"></h3>
+  <div id="questionText" style="margin-top:10px;font-size:1rem;"></div>
+  <div id="options"></div>
+  <button id="nextBtn" class="btn-primary" onclick="nextQuestion()" disabled>Selanjutnya</button>
+  <div id="timerElem" style="margin-top:10px;text-align:center;"></div>
+</div>
+
+<!-- RESULT -->
+<div id="result" class="screen">
+  <h3>HASIL KUIS</h3>
+  <p id="nameResult"></p>
+  <h1 id="scoreBox"></h1>
+  <button class="btn-primary" onclick="restart()">Kembali</button>
+</div>
+
+<!-- ADMIN LOGIN -->
+<div id="guruLogin" class="screen">
+  <input id="guruPass" type="password" placeholder="Password Guru...">
+  <button class="btn-primary" onclick="guruSubmit()">Masuk</button>
+  <div id="guruError" style="color:red;margin-top:6px;display:none;"></div>
+  <button class="btn-blue" onclick="showScreen('login')">Kembali</button>
+</div>
+
+<!-- ADMIN MENU -->
+<div id="menuAdmin" class="screen">
+  <h3 style="text-align:center;margin-bottom:10px;">MENU GURU</h3>
+  <button class="btn-primary" onclick="openNama()">Input Nama</button>
+  <button class="btn-primary" onclick="loadAbsensi()">Absensi</button>
+  <button class="btn-primary" onclick="loadRekapAbsensi()">Rekap Absensi</button>
+  <button class="btn-primary" onclick="loadRekapNilai()">Rekap Nilai</button>
+  <button class="btn-primary" onclick="exportNilai()">Export Nilai</button>
+  <button class="btn-primary" onclick="exportAbsensi()">Export Absensi</button>
+  <button class="btn-yellow" onclick="toggleRepeat()">Mode Ulang: <span id="repeatLabel"></span></button>
+  <button class="btn-red" onclick="resetSemua()">Reset Semua Data</button>
+  <button class="btn-blue" onclick="logoutGuru()">Logout</button>
+</div>
+
+<!-- INPUT NAMA -->
+<div id="inputNama" class="screen">
+  <input id="namaInput" placeholder="Nama lengkap...">
+  <select id="kelasInput">
+    <option value="">Pilih Kelas</option>
+    <option>3A</option><option>3B</option>
+    <option>4A</option><option>4B</option>
+  </select>
+  <button class="btn-primary" onclick="simpanNama()">Simpan</button>
+  <button class="btn-blue" onclick="showScreen('menuAdmin')">Kembali</button>
+  <div id="listNamaBox" class="scrollBox" style="margin-top:10px;"></div>
+</div>
+
+<!-- ABSENSI -->
+<div id="absenScreen" class="screen">
+  <h3 style="text-align:center;">ABSENSI — Hari <span id="hariSpan"></span></h3>
+  <div id="absenWrapper" class="scrollBox"></div>
+  <button class="btn-primary" onclick="hariBerikutnya()">Hari Berikutnya</button>
+  <button class="btn-blue" onclick="showScreen('menuAdmin')">Kembali</button>
+</div>
+
+<!-- REKAP ABSENSI -->
+<div id="rekapAbsenScreen" class="screen">
+  <h3 style="text-align:center;">REKAP ABSENSI</h3>
+  <div id="rekapAbsenWrapper" class="scrollBox"></div>
+  <button class="btn-blue" onclick="showScreen('menuAdmin')">Kembali</button>
+</div>
+
+<!-- REKAP NILAI -->
+<div id="rekapNilaiScreen" class="screen">
+  <h3 style="text-align:center;">REKAP NILAI</h3>
+  <div id="rekapNilaiWrapper" class="scrollBox"></div>
+  <button class="btn-blue" onclick="showScreen('menuAdmin')">Kembali</button>
+</div>
+
+<!-- KHODAM -->
+<div id="khodamScreen" class="screen">
+  <input id="khodamName" placeholder="Masukkan nama...">
+  <button class="btn-yellow" onclick="generateKhodam()">Cek Khodam</button>
+  <div id="khodamResult" style="margin-top:10px;font-size:1rem;"></div>
+  <button class="btn-blue" onclick="showScreen('login')">Kembali</button>
+</div>
+
+<!-- MUROTAL SECTION -->
+<div id="murotalSection" class="screen">
+  <h3 style="text-align:center;">Murotal Al-Qur'an 🎧</h3>
+
+  <select id="imamSelect" style="width:100%;padding:10px;border-radius:12px;border:1px solid #ddd;margin-bottom:10px;"></select>
+  <select id="surahSelect" style="width:100%;padding:10px;border-radius:12px;border:1px solid #ddd;margin-bottom:10px;"></select>
+
+  <audio id="murotalPlayer" controls style="width:100%;margin-top:8px;"></audio>
+
+  <div style="display:flex;gap:10px;margin-top:12px;">
+    <button class="btn-primary" onclick="prevSurah()">Prev</button>
+    <button class="btn-primary" onclick="nextSurah()">Next</button>
+    <button id="loopBtn" class="btn-yellow" onclick="toggleLoop()">Loop: OFF</button>
+  </div>
+
+  <button class="btn-blue" style="margin-top:12px;" onclick="showScreen('login')">Kembali</button>
+</div>
+
+<script>
+// ================= SOAL =================
+const poolRamadhan=[{q:"Ramadhan adalah bulan ke berapa dalam kalender Hijriah?",o:["Kesembilan","Ketujuh","Kedua","Pertama"],a:0},{q:"Puasa Ramadhan hukumnya bagi umat Islam adalah?",o:["Wajib","Sunnah","Makruh","Haram"],a:0},{q:"Saat berpuasa kita dilarang makan dan minum mulai?",o:["Subuh sampai Maghrib","Subuh sampai Isya","Maghrib sampai Subuh","Dhuha sampai Ashar"],a:0},{q:"Sahur adalah makan sebelum?",o:["Subuh","Maghrib","Isya","Ashar"],a:0},{q:"Berbuka puasa dilakukan pada waktu?",o:["Maghrib","Subuh","Isya","Dzuhur"],a:0},{q:"Niat puasa dilakukan pada waktu?",o:["Malam hari","Pagi hari","Siang hari","Sore hari"],a:0},{q:"Yang membatalkan puasa adalah?",o:["Makan dan minum","Tidur","Belajar","Bermain"],a:0},{q:"Lailatul Qadar terjadi pada?",o:["10 malam terakhir Ramadhan","Awal Ramadhan","Syawal","Muharram"],a:0},{q:"Zakat fitrah dikeluarkan sebelum?",o:["Sholat Id","Sholat Jumat","Sholat Ashar","Sholat Tahajud"],a:0},{q:"Zakat fitrah dibayar dengan?",o:["Beras/makanan pokok","Air","Pakaian","Buah"],a:0}];
+
+const poolBaligh=[{q:"Baligh adalah keadaan dimana seorang anak sudah?",o:["Dibebani hukum syariat","Bebas dari syariat","Tidak wajib ibadah","Tidak perlu sholat"],a:0},{q:"Tanda baligh laki-laki adalah?",o:["Mimpi basah","Haidh","Kehamilan","Suara serak"],a:0},{q:"Tanda baligh perempuan adalah?",o:["Haidh","Mimpi basah","Kumis tumbuh","Botak"],a:0},{q:"Mukallaf artinya?",o:["Sudah terkena kewajiban agama","Tidak wajib sholat","Tidak wajib puasa","Bebas aturan"],a:0},{q:"Mimpi basah berarti keluarnya?",o:["Mani","Keringat","Air mata","Air liur"],a:0},{q:"Setelah haidh perempuan wajib?",o:["Mandi wajib","Cuci tangan","Tidur","Ganti baju"],a:0},{q:"Pubertas adalah perubahan dari?",o:["Anak ke dewasa","Dewasa ke tua","Balita ke bayi","Tua ke anak"],a:0},{q:"Hadats besar hilang dengan?",o:["Mandi wajib","Wudhu","Cuci muka","Tayamum"],a:0},{q:"Perubahan suara menjadi berat terjadi pada?",o:["Laki-laki","Perempuan","Balita","Orang tua"],a:0},{q:"Menarche adalah?",o:["Haid pertama","Mimpi pertama","Kumis pertama","Jenggot pertama"],a:0}];
+
+// ============ QUIZ ENGINE ============
+let student="",kelas="",current=[],index=0,score=0,timer=300,timeInt=null,repeatMode=false;
+function startQuiz(){
+  let n=studentName.value.trim(),k=studentClass.value.trim();
+  loginError.style.display="none";
+  if(!n||!k){loginError.innerText="Lengkapi nama & kelas!";loginError.style.display="block";return;}
+  student=n;kelas=k;
+  let pernah=nilai.some(v=>v.name===student&&v.class===kelas);
+  if(pernah&&!repeatMode){loginError.innerText="Kamu sudah mengerjakan kuis!";loginError.style.display="block";return;}
+  current=(k==="3A"||k==="3B")?shuffle([...poolRamadhan]).slice(0,10):shuffle([...poolBaligh]).slice(0,10);
+  index=0;score=0;startTimer();showQuestion();showScreen('quiz');
+}
+function showQuestion(){let q=current[index];progress.innerText=`Soal ${index+1}/${current.length}`;questionText.innerText=q.q;options.innerHTML="";nextBtn.disabled=true;shuffle(q.o.map((txt,i)=>({txt,i}))).forEach(o=>{let d=document.createElement("div");d.className="option";d.innerText=o.txt;d.onclick=()=>selectOption(d,o.i);options.appendChild(d);});}
+function selectOption(d,i){document.querySelectorAll(".option").forEach(x=>x.classList.remove("selected"));d.classList.add("selected");current[index].pick=i;nextBtn.disabled=false;}
+function nextQuestion(){if(current[index].pick===current[index].a)score+=10;index++;(index<current.length)?showQuestion():finishQuiz();}
+function startTimer(){clearInterval(timeInt);timer=300;updateTimer();timeInt=setInterval(updateTimer,1000);}
+function updateTimer(){timer--;if(timer<=0){timer=0;clearInterval(timeInt);finishQuiz();}let m=Math.floor(timer/60),s=timer%60;timerElem.innerText=`Sisa: ${m}:${s<10?"0"+s:s}`;}
+function finishQuiz(){clearInterval(timeInt);nameResult.innerText=`${student} (${kelas})`;scoreBox.innerText=score;saveNilai(student,kelas,score);if(!absensi[kelas])absensi[kelas]={};if(!absensi[kelas][student])absensi[kelas][student]=Array(30).fill("");absensi[kelas][student][hari-1]="H";saveAll();showScreen('result');}
+function restart(){location.reload();}
+function shuffle(a){for(let i=a.length-1;i>0;i--){let j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];}return a;}
+function showScreen(id){document.querySelectorAll(".screen").forEach(x=>x.classList.remove("active"));document.getElementById(id).classList.add("active");}
+
+// ============ STORAGE ============
+let siswa=JSON.parse(localStorage.getItem("siswaPai")||"{}"),absensi=JSON.parse(localStorage.getItem("absensiPai")||"{}"),nilai=JSON.parse(localStorage.getItem("nilaiPai")||"[]"),khodamSave=JSON.parse(localStorage.getItem("khodamPai")||"{}"),hari=parseInt(localStorage.getItem("hariPai")||"1");
+
+// ============ ADMIN ============
+function openGuruLogin(){showScreen('guruLogin');}
+function guruSubmit(){let p=guruPass.value.trim();guruError.style.display="none";if(!p){guruError.innerText="Masukkan password!";guruError.style.display="block";return;}p==="040698"?showScreen('menuAdmin'): (guruError.innerText="Password salah!",guruError.style.display="block");}
+function logoutGuru(){showScreen('login');}
+function toggleRepeat(){repeatMode=!repeatMode;localStorage.setItem("repeatMode",repeatMode);repeatLabel.innerText=repeatMode?"ON":"OFF";}
+repeatLabel.innerText=repeatMode?"ON":"OFF";
+function saveNilai(n,k,s){nilai.push({name:n,class:k,score:s,time:new Date().toLocaleString("id-ID")});saveAll();}
+
+function openNama(){loadListNama();showScreen('inputNama');}
+function simpanNama(){let nama=namaInput.value.trim(),k=kelasInput.value.trim();if(!nama||!k){alert("Lengkapi data!");return;}if(!siswa[k])siswa[k]=[];if(!siswa[k].includes(nama))siswa[k].push(nama);if(!absensi[k])absensi[k]={};if(!absensi[k][nama])absensi[k][nama]=Array(30).fill("");saveAll();loadListNama();namaInput.value="";kelasInput.value="";}
+function loadListNama(){listNamaBox.innerHTML="";for(let k in siswa){listNamaBox.innerHTML+=`<b>${k}</b><br>`;siswa[k].forEach(n=>listNamaBox.innerHTML+=`• ${n}<br>`);listNamaBox.innerHTML+="<br>";}}
+function saveAll(){localStorage.setItem("siswaPai",JSON.stringify(siswa));localStorage.setItem("absensiPai",JSON.stringify(absensi));localStorage.setItem("nilaiPai",JSON.stringify(nilai));localStorage.setItem("khodamPai",JSON.stringify(khodamSave));localStorage.setItem("hariPai",hari);}
+
+function loadAbsensi(){if(!Object.keys(siswa).length)return alert("Belum ada siswa!");hariSpan.innerText=hari;absenWrapper.innerHTML="";for(let k in siswa){absenWrapper.innerHTML+=`<h3 style="color:var(--primary);">${k}</h3>`;siswa[k].forEach(n=>{let st=absensi[k][n][hari-1]||"-";absenWrapper.innerHTML+=`<div style="display:flex;justify-content:space-between;margin-bottom:8px;"><span>${n}</span><div style="display:flex;gap:4px;"><button onclick="setAbsen('${k}','${n}','H')" class="btn-primary" style="padding:4px 8px;">H</button><button onclick="setAbsen('${k}','${n}','I')" class="btn-yellow" style="padding:4px 8px;">I</button><button onclick="setAbsen('${k}','${n}','S')" class="btn-blue" style="padding:4px 8px;">S</button><button onclick="setAbsen('${k}','${n}','A')" class="btn-red" style="padding:4px 8px;">A</button></div><span>${st}</span></div>`;});}showScreen('absenScreen');}
+function setAbsen(k,n,s){absensi[k][n][hari-1]=s;saveAll();loadAbsensi();}
+function hariBerikutnya(){hari<30?(hari++,saveAll(),loadAbsensi()):alert("Max 30 hari!");}
+
+function loadRekapAbsensi(){rekapAbsenWrapper.innerHTML="";for(let k in siswa){let html=`<h3 style="color:var(--primary);">${k}</h3><div style="overflow-x:auto;"><table><tr><th>Nama</th>`;for(let i=1;i<=30;i++)html+=`<th>${i}</th>`;html+=`</tr>`;siswa[k].forEach(n=>{html+=`<tr><td>${n}</td>`;absensi[k][n].forEach(v=>html+=`<td>${v||"-"}</td>`);html+=`</tr>`;});html+=`</table></div>`;rekapAbsenWrapper.innerHTML+=html;}showScreen('rekapAbsenScreen');}
+function loadRekapNilai(){rekapNilaiWrapper.innerHTML="";["3A","3B","4A","4B"].forEach(k=>{let f=nilai.filter(x=>x.class===k);if(!f.length)return;f.sort((a,b)=>b.score-a.score);let hi=f[0].score;let html=`<h3 style="color:var(--primary);">${k} — Highscore: ${hi}</h3><div style="overflow-x:auto;"><table><tr><th>No</th><th>Nama</th><th>Nilai</th><th>Waktu</th></tr>`;f.forEach((x,i)=>{let bg=x.score===hi?'#fff7a8':x.score>=80?'#d4ffd4':x.score>=60?'#ffe5b5':'#ffd4d4';html+=`<tr style="background:${bg};"><td>${i+1}</td><td>${x.name}</td><td>${x.score}</td><td>${x.time}</td></tr>`});html+=`</table></div>`;rekapNilaiWrapper.innerHTML+=html;});showScreen('rekapNilaiScreen');}
+
+function exportNilai(){const wb=XLSX.utils.book_new();XLSX.utils.book_append_sheet(wb,XLSX.utils.json_to_sheet(nilai),"Nilai");XLSX.writeFile(wb,"rekap_nilai.xlsx");}
+function exportAbsensi(){const wb=XLSX.utils.book_new(),data=[];for(let k in absensi){for(let n in absensi[k])data.push({kelas:k,nama:n,status:absensi[k][n].join(",")});}XLSX.utils.book_append_sheet(wb,XLSX.utils.json_to_sheet(data),"Absensi");XLSX.writeFile(wb,"rekap_absensi.xlsx");}
+
+</script>
+<script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+
+<script>
+// MUSIC
+let audio=new Audio("./ala.mp3"),autoStarted=false;
+function unlockAudio(){if(!autoStarted){autoStarted=true;audio.play().then(()=>trackName.innerText="Memutar: ala.mp3").catch(()=>{});}}
+document.addEventListener("click",unlockAudio,{once:true});
+document.addEventListener("touchstart",unlockAudio,{once:true});
+btnStop.onclick=()=>{audio.pause();trackName.innerText="Musik dihentikan";};
+btnNext.onclick=()=>{audio.currentTime=0;audio.play().catch(()=>{});trackName.innerText="Memutar: ala.mp3";};
+</script>
+
+<script>
+// KHODAM
+const KHODAM_LIST=["Maung Hitam","Maung Putih","Singa Emas","Harimau Belang","Aura Putih","Aura Hitam","Oncom Legendaris","Tempe Sakti","Rajin Ibadah","Soleh","Solehah","Cacing Baja"];
+function openKhodam(){showScreen('khodamScreen');}
+function generateKhodam(){let name=khodamName.value.trim();if(!name)return alert("Masukkan nama!");if(!khodamSave[name]){khodamSave[name]=KHODAM_LIST[Math.floor(Math.random()*KHODAM_LIST.length)];saveAll();}let hasil=khodamSave[name];khodamResult.innerHTML=`<b>${name}</b><br>Khodam:<br><span style="color:var(--primary);font-size:1.2rem;">${hasil}</span><br><i>(hiburan)</i>`;}
+</script>
+
+<script>
+// RESET
+function resetSemua(){if(confirm("Reset semua data?")){localStorage.clear();siswa={};absensi={};nilai=[];khodamSave={};hari=1;alert("Data direset!");location.reload();}}
+</script>
+
+<script>
+// ================= MUROTAL =================
+
+// daftar imam & url
+const IMAMS = {
+  "sudais":"Sudais",
+  "mishary":"Misyari",
+  "afasy":"Afasy"
+};
+
+const MUROTAL_BASE = {
+  sudais:  "https://server.mp3quran.net/sudais/",
+  mishary: "https://server.mp3quran.net/mishary/",
+  afasy:   "https://server.mp3quran.net/afasy/"
+};
+
+// daftar surah 1-114
+const SURAH = [];
+const SURAH_NAMES=[
+"Al-Fatihah","Al-Baqarah","Ali Imran","An-Nisa","Al-Ma'idah","Al-An'am","Al-A'raf","Al-Anfal","At-Taubah","Yunus",
+"H Hud","Yusuf","Ar-Ra'd","Ibrahim","Al-Hijr","An-Nahl","Al-Isra","Al-Kahf","Maryam","Taha","Al-Anbiya","Al-Hajj",
+"Al-Mu'minun","An-Nur","Al-Furqan","Asy-Syu'ara","An-Naml","Al-Qasas","Al-Ankabut","Ar-Rum","Luqman","As-Sajdah",
+"Al-Ahzab","Saba","Fatir","Yasin","As-Saffat","Sad","Az-Zumar","Ghafir","Fussilat","Asy-Syura","Az-Zukhruf",
+"Ad-Dukhan","Al-Jatsiyah","Al-Ahqaf","Muhammad","Al-Fath","Al-Hujurat","Qaf","Az-Zariyat","At-Tur","An-Najm",
+"Al-Qamar","Ar-Rahman","Al-Waqi'ah","Al-Hadid","Al-Mujadila","Al-Hasyr","Al-Mumtahanah","As-Saff","Al-Jumuah",
+"Al-Munafiqun","At-Taghabun","At-Talaq","At-Tahrim","Al-Mulk","Al-Qalam","Al-Haqqah","Al-Ma'arij","Nuh","Al-Jinn",
+"Al-Muzzammil","Al-Muddathir","Al-Qiyamah","Al-Insan","Al-Mursalat","An-Naba","An-Nazi'at","Abasa","At-Takwir",
+"Al-Infitar","Al-Mutaffifin","Al-Insyiqaq","Al-Buruj","At-Tariq","Al-A'la","Al-Gasyiyah","Al-Fajr","Al-Balad",
+"Asy-Syams","Al-Lail","Ad-Duha","Asy-Syarh","At-Tin","Al-Alaq","Al-Qadr","Al-Bayyinah","Az-Zalzalah","Al-Adiyat",
+"Al-Qari'ah","At-Takatsur","Al-Asr","Al-Humazah","Al-Fil","Quraisy","Al-Ma'un","Al-Kausar","Al-Kafirun","An-Nasr",
+"Al-Lahab","Al-Ikhlas","Al-Falaq","An-Nas"
+];
+for(let i=1;i<=114;i++) SURAH.push({id:String(i).padStart(3,"0"), name:SURAH_NAMES[i-1]});
+
+let imamCurrent="sudais",surahIndex=0,loopMode=false;
+const imamSelect=document.getElementById("imamSelect"),surahSelect=document.getElementById("surahSelect"),murotalPlayer=document.getElementById("murotalPlayer"),loopBtn=document.getElementById("loopBtn");
+
+function initMurotal(){
+  imamSelect.innerHTML=""; for(let key in IMAMS){imamSelect.innerHTML+=`<option value="${key}">${IMAMS[key]}</option>`;}
+  surahSelect.innerHTML=""; SURAH.forEach((s,i)=>surahSelect.innerHTML+=`<option value="${i}">${s.id} - ${s.name}</option>`);
+}
+function loadMurotal(){
+  const surah=SURAH[surahIndex].id;
+  const url=MUROTAL_BASE[imamCurrent]+surah+".mp3";
+  murotalPlayer.src=url; murotalPlayer.play().catch(()=>{});
+}
+imamSelect.onchange=()=>{imamCurrent=imamSelect.value;loadMurotal();};
+surahSelect.onchange=()=>{surahIndex=parseInt(surahSelect.value);loadMurotal();};
+function nextSurah(){surahIndex++; if(surahIndex>=SURAH.length)surahIndex=0;surahSelect.value=surahIndex;loadMurotal();}
+function prevSurah(){surahIndex--; if(surahIndex<0)surahIndex=SURAH.length-1;surahSelect.value=surahIndex;loadMurotal();}
+function toggleLoop(){loopMode=!loopMode;murotalPlayer.loop=loopMode;loopBtn.innerText=`Loop: ${loopMode?"ON":"OFF"}`;}
+murotalPlayer.onended=()=>{if(!loopMode)nextSurah();};
+initMurotal(); loadMurotal();
+</script>
+
+</div>
+</body>
+</html>
